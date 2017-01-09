@@ -23,7 +23,8 @@ import id.sch.smktelkom_mlg.learn.recyclerview3.model.Hotel;
 public class MainActivity extends AppCompatActivity implements HotelAdapter.IHotelAdapter {
 
     public static final String HOTEL = "hotel";
-    ArrayList<Hotel> mList = new ArrayList<>();
+    public static final int REQUEST_CODE_ADD = 88;
+    ArrayList<Hotel> mlist = new ArrayList<>();
     HotelAdapter mAdapter;
 
     @Override
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements HotelAdapter.IHot
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                goAdd();
             }
         });
 
@@ -49,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements HotelAdapter.IHot
         recyclerView.setAdapter(mAdapter);
 
         fillData();
+    }
+
+    private void goAdd() {
+        startActivityForResult(new Intent(this, id.sch.smktelkom_mlg.learn.recyclerview3.InputActivity.class), REQUEST_CODE_ADD);
     }
 
     private void fillData() {
@@ -62,9 +68,9 @@ public class MainActivity extends AppCompatActivity implements HotelAdapter.IHot
         for (int i = 0; i < arFoto.length; i++) {
             int id = a.getResourceId(i, 0);
             arFoto[i] = ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
-                    + resources.getResourcePackageName(id) + '/'
-                    + resources.getResourceTypeName(id) + '/'
-                    + resources.getResourceEntryName(id);
+            resources.getResourcePackageName(id) + '/'
+            resources.getResourceTypeName(id) + '/'
+            resources.getResourceEntryName(id);
         }
         a.recycle();
 
@@ -99,7 +105,18 @@ public class MainActivity extends AppCompatActivity implements HotelAdapter.IHot
     @Override
     public void doClick(int pos) {
         Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra(HOTEL, String.valueOf(mList.get(pos)));
+        intent.putExtra(HOTEL, mlist.get(pos));
         startActivity(intent);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_ADD && resultCode == RESULT_OK) {
+            Hotel hotel = (Hotel) data.getSerializableExtra(HOTEL);
+            mlist.add(hotel);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
 }
+
